@@ -6,7 +6,7 @@ from stem.control import Controller
 # Function to create a new Tor circuit
 def renew_tor_ip():
     with Controller.from_port(port=9051) as controller:
-        controller.authenticate()  # No password argument
+        controller.authenticate()  # Authenticate with Tor (default setup)
         controller.signal(Signal.NEWNYM)
 
 # Function to fetch a webpage using Tor
@@ -28,6 +28,7 @@ def scrape_data(url):
     title = soup.title.string
     print(f'Title of the page: {title}')
 
+# Get URL from user input
 if __name__ == '__main__':
-    url = 'http://example.com'  # Replace with the URL you want to scrape
+    url = input('Enter the URL of the website to scrape: ')
     scrape_data(url)
