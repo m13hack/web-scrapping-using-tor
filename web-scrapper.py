@@ -4,7 +4,8 @@ from bs4 import BeautifulSoup
 
 def fetch_page(url, use_tor=False):
     if use_tor:
-        client = httpx.Client(proxies={"http://": "http://127.0.0.1:9050", "https://": "http://127.0.0.1:9050"}, timeout=30)
+        # SOCKS proxy configuration
+        client = httpx.Client(proxies={"socks5://": "socks5://127.0.0.1:9050"}, timeout=30)
     else:
         client = httpx.Client()
     
@@ -31,7 +32,7 @@ def scrape_data(url):
 
 def measure_execution_time(url, use_tor=False):
     if use_tor:
-        client = httpx.Client(proxies={"http://": "http://127.0.0.1:9050", "https://": "http://127.0.0.1:9050"}, timeout=30)
+        client = httpx.Client(proxies={"socks5://": "socks5://127.0.0.1:9050"}, timeout=30)
     else:
         client = httpx.Client()
 
