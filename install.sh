@@ -7,7 +7,7 @@ sudo apt-get update
 sudo apt-get install -y python3 python3-pip tor
 
 # Install Python dependencies
-pip3 install requests beautifulsoup4 stem pytorctl
+pip3 install requests beautifulsoup4 stem
 
 # Check if Tor service is installed
 if ! pgrep -x "tor" > /dev/null
