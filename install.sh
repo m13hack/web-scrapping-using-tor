@@ -1,21 +1,31 @@
 #!/bin/bash
 
-# Update package lists
-sudo apt-get update
+# Define the necessary Python packages
+PACKAGES="httpx beautifulsoup4"
 
-# Install Python3, pip, and Tor if they are not already installed
+# Update package list and install system packages
+echo "Updating package list..."
+sudo apt-get update -y
+
+echo "Installing Python and system packages..."
 sudo apt-get install -y python3 python3-pip tor
 
-# Install Python dependencies including SOCKS support for httpx
-pip3 install httpx[socks] beautifulsoup4
+# Install Python packages
+echo "Installing Python packages..."
+pip3 install $PACKAGES
 
-# Check if Tor service is installed and start it if necessary
-if ! pgrep -x "tor" > /dev/null
-then
-    echo "Tor is not running. Starting Tor service..."
-    sudo service tor start
-else
-    echo "Tor service is already running."
-fi
+# Start Tor service
+echo "Starting Tor service..."
+sudo systemctl start tor
 
-echo "All dependencies have been installed."
+# Enable Tor to start on boot
+echo "Enabling Tor to start on boot..."
+sudo systemctl enable tor
+
+echo "All dependencies have been installed and Tor service is started."
+
+# Check if Tor service is running
+echo "Checking Tor service status..."
+sudo systemctl status tor | grep 'Active:'
+
+echo "Installation and setup complete."
