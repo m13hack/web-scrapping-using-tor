@@ -1,34 +1,55 @@
-import requests
-from bs4 import BeautifulSoup
-from stem import Signal
-from stem.control import Controller
+import time
+import httpx
+from scrapfly import ScrapeConfig, ScrapflyClient
 
-# Function to create a new Tor circuit
-def renew_tor_ip():
-    with Controller.from_port(port=9051) as controller:
-        controller.authenticate()  # Authenticate with Tor (default setup)
-        controller.signal(Signal.NEWNYM)
+def scrapfly_scrape(url, api_key):
+    scrapfly = ScrapflyClient(key=api_key)
+    response = scrapfly.scrape(ScrapeConfig(
+        url=url,
+        asp=True,  # enable the anti scraping protection to bypass blocking
+        proxy_pool="public_residential_pool",  # select the residential proxy pool
+        country="US",  # set the proxy location to a specific country
+        render_js=True  # enable rendering JavaScript (like headless browsers) to scrape dynamic content if needed
+    ))
 
-# Function to fetch a webpage using Tor
-def fetch_page(url):
-    session = requests.Session()
-    session.proxies = {
-        'http': 'socks5h://localhost:9050',
-        'https': 'socks5h://localhost:9050',
-    }
-    response = session.get(url)
-    return response.text
+    # use the built in Parsel selector
+    selector = response.selector
+    # access the HTML content
+    html = response.scrape_result['content']
+    print(f"Scraped content length: {len(html)}")
+    return html
 
-# Main function to scrape data
-def scrape_data(url):
-    html = fetch_page(url)
-    soup = BeautifulSoup(html, 'html.parser')
-    
-    # Extract data here. For example:
-    title = soup.title.string
-    print(f'Title of the page: {title}')
+def measure_execution_time(url_pattern, use_tor=False):
+    if use_tor:
+        client = httpx.Client(proxies={"http://": "http://127.0.0.1:9050", "https://": "http://127.0.0.1:9050"}, timeout=5000)
+    else:
+        client = httpx.Client()
 
-# Get URL from user input
+    start_time = time.time()
+    for page_number in range(1, 6):
+        response = client.get(url_pattern.format(page_number))
+        print(f"Fetched page {page_number} with status code: {response.status_code}")
+
+    total_execution_time = time.time() - start_time
+    proxy_type = "Tor proxy" if use_tor else "regular"
+    print(f"Requests with {proxy_type} execution time: {total_execution_time:.2f} seconds")
+
+def main():
+    scrapfly_api_key = input("Enter your ScrapFly API key: ")
+    url_to_scrape = input("Enter the URL to scrape: ")
+    paginated_url_pattern = input("Enter the paginated URL pattern (use {} for page number): ")
+
+    # Scrape using Scrapfly
+    print("Scraping using Scrapfly...")
+    scrapfly_scrape(url_to_scrape, scrapfly_api_key)
+
+    # Measure execution time using Tor proxy
+    print("Measuring execution time with Tor proxy...")
+    measure_execution_time(paginated_url_pattern, use_tor=True)
+
+    # Measure execution time using regular connection
+    print("Measuring execution time with regular connection...")
+    measure_execution_time(paginated_url_pattern, use_tor=False)
+
 if __name__ == '__main__':
-    url = input('Enter the URL of the website to scrape: ')
-    scrape_data(url)
+    main()
