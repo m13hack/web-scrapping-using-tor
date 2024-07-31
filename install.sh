@@ -7,7 +7,7 @@ sudo apt-get update
 sudo apt-get install -y python3 python3-pip tor
 
 # Install Python dependencies
-pip3 install scrapfly httpx
+pip3 install httpx beautifulsoup4
 
 # Check if Tor service is installed and start it if necessary
 if ! pgrep -x "tor" > /dev/null
