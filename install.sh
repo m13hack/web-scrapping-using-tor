@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Define the necessary Python packages
-PACKAGES="httpx beautifulsoup4"
+PACKAGES="httpx beautifulsoup4 socksio"
 
 # Update package list and install system packages
 echo "Updating package list..."
